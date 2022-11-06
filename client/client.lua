@@ -1,4 +1,3 @@
-local QBCore = exports['qb-core']:GetCoreObject()
 local UMHackerPhoneStatus = false
 
 CreateThread(function()
@@ -57,26 +56,26 @@ RegisterNetEvent("um-hackerphone:client:centralchip", function()
 			if success then
 				SendNUIMessage({nuimessage = "cbool"})
 				ClearPedTasks(ped)
-				QBCore.Functions.Notify('Central cart connected', "success")
+				ESX.ShowNotification("Central cart connected", "success", 5000)
 				TriggerServerEvent('um-hackerphone:server:removeitem',"centralchip")
 			else
 				ClearPedTasks(ped)
-				QBCore.Functions.Notify('Failed to connect', "error")
+				ESX.ShowNotification("Failed to connect", "error", 5000)
 			end
 		end, "numeric", 30, 2)
 	else
-		QBCore.Functions.Notify('Not near power station', "error")
+		ESX.ShowNotification("Not near power station", "error", 5000)
 	end
 end)
 
 RegisterNetEvent("um-hackerphone:client:vehicletracker", function()
-	local vehicle = QBCore.Functions.GetClosestVehicle()
+	local vehicle = ESX.Game.GetClosestVehicle(GetEntityCoords(PlayerPedId()))
 	if vehicle ~= nil and vehicle ~= 0 then
 		local ped = PlayerPedId()
 		local pos = GetEntityCoords(ped)
 		local vehpos = GetEntityCoords(vehicle)
 		local vehicleinfo = {
-			["plate"] = QBCore.Functions.GetPlate(vehicle),
+			["plate"] = GetVehicleNumberPlateText(vehicle),
 			["vehname"] = GetDisplayNameFromVehicleModel(GetEntityModel(vehicle)):lower(),
 			["vehengine"] = GetVehicleEngineHealth(vehicle),
 			["vehicle"] = vehicle
@@ -87,15 +86,15 @@ RegisterNetEvent("um-hackerphone:client:vehicletracker", function()
 				if success then
 					SendNUIMessage({nuimessage = 'vbool', vehicleinfo = vehicleinfo})
 					ClearPedTasks(ped)
-					QBCore.Functions.Notify('Tracker connected to vehicle', "success")
+					ESX.ShowNotification("Tracker connected to vehicle", "success", 5000)
 					TriggerServerEvent('um-hackerphone:server:removeitem',"tracker")
 				else
 					ClearPedTasks(ped)
-					QBCore.Functions.Notify('Failed to connect', "error")
+					ESX.ShowNotification("Failed to connect", "error", 5000)
 				end
 			end, 5, 10)
 		else
-			QBCore.Functions.Notify('No cars nearby', "error")
+			ESX.ShowNotification("No cars nearby", "error", 5000)
 		end
     end
 end)

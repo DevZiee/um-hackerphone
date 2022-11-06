@@ -1,23 +1,22 @@
-local QBCore = exports['qb-core']:GetCoreObject()
-
-QBCore.Functions.CreateUseableItem("hackerphone", function(source)
-   local src = source
-	local Player = QBCore.Functions.GetPlayer(src)
-   local name = Player.PlayerData.charinfo.firstname
-   TriggerClientEvent('um-hackerphone:client:openphone',src,name)
+ESX.RegisterUsableItem('hackerphone', function(playerId)
+   local xPlayer = ESX.GetPlayerFromId(playerId)
+   xPlayer.triggerEvent('um-hackerphone:client:openphone', xPlayer.name)
 end)
 
-QBCore.Functions.CreateUseableItem("tracker", function(source)
-   TriggerClientEvent('um-hackerphone:client:vehicletracker',source)
+ESX.RegisterUsableItem('tracker', function(playerId)
+   local xPlayer = ESX.GetPlayerFromId(playerId)
+   xPlayer.triggerEvent('um-hackerphone:client:vehicletracker')
 end)
 
-QBCore.Functions.CreateUseableItem("centralchip", function(source)
-   TriggerClientEvent('um-hackerphone:client:centralchip',source)
+ESX.RegisterUsableItem('centralchip', function(playerId)
+   local xPlayer = ESX.GetPlayerFromId(playerId)
+   xPlayer.triggerEvent('um-hackerphone:client:centralchip')
 end)
 
 RegisterNetEvent('um-hackerphone:server:removeitem', function(item)
-   local Player = QBCore.Functions.GetPlayer(source)
-   Player.Functions.RemoveItem(item, 1)
+   local _source = source
+   local xPlayer = ESX.GetPlayerFromId(_source)
+   xPlayer.removeInventoryItem(item, 1)
 end)
 
 RegisterNetEvent('um-hackerphone:server:targetinformation', function()
@@ -25,24 +24,26 @@ RegisterNetEvent('um-hackerphone:server:targetinformation', function()
    local PlayerPed = GetPlayerPed(src)
    local pCoords = GetEntityCoords(PlayerPed)
    local found = false
-      for k, v in pairs(QBCore.Functions.GetPlayers()) do
-         local TargetPed = GetPlayerPed(v)
-         local tCoords = GetEntityCoords(TargetPed)
-         local dist = #(pCoords - tCoords)
-         if PlayerPed ~= TargetPed and dist < 3.0 then
-            found = true
-            TargetPlayer = QBCore.Functions.GetPlayer(v)
-         end
-     end
-  if found then 
-         local targetinfo = {
-            ['targetname'] = TargetPlayer.PlayerData.charinfo.firstname,
-            ['targetlastname'] = TargetPlayer.PlayerData.charinfo.lastname,
-            ['targetdob'] = TargetPlayer.PlayerData.charinfo.birthdate,
-            ['targetphone'] = TargetPlayer.PlayerData.charinfo.phone,
-            ['targetbank'] = TargetPlayer.PlayerData.money['bank']
-          }
-      TriggerClientEvent('um-hackerphone:client:targetinfornui',src,targetinfo)
+   local xPlayers = ESX.GetExtendedPlayers()
+   for i = 1, #xPlayers do
+      local xPlayer = xPlayers[i]
+      local TargetPed = GetPlayerPed(xPlayer.source)
+      local tCoords = GetEntityCoords(TargetPed)
+      local dist = #(pCoords - tCoords)
+      if PlayerPed ~= TargetPed and dist < 3.0 then
+         found = true
+         xTarget = xPlayer
+      end
+   end  
+   if found then 
+      local targetinfo = {
+         ['targetname'] = xTarget.get("firstName"),
+         ['targetlastname'] = xTarget.get("lastName"),
+         ['targetdob'] = xTarget.get("dateofbirth"),
+         ['targetphone'] = xTarget.get("phoneNumber"),
+         ['targetbank'] = xTarget.getAccount('bank').money
+      }
+      TriggerClientEvent('um-hackerphone:client:targetinfornui', src, targetinfo)
    else
       TriggerClientEvent('um-hackerphone:client:notify',src)
    end
